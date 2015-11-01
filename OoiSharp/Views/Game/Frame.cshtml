@@ -1,0 +1,16 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Frame</title>
+</head>
+<body style="margin: 0px; padding: 0px;">
+    <div id="spacing_top" style="height:16px;"></div>
+    <div id="flashWrap" style="margin: auto;">
+        <embed width="800" height="480" id="externalswf" wmode="gpu" quality="high" bgcolor="#000000" allowscriptaccess="always" base="@ViewBag.SitePrefix/kcs/" type="application/x-shockwave-flash" src="@ViewBag.SitePrefix/kcs/mainD2.swf?api_token=@ViewBag.ApiToken&amp;api_starttime=@ViewBag.StartTime" style="display: block !important;" />
+    </div>
+</body>
+</html>

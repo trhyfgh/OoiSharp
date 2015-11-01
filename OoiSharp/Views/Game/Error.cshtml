@@ -1,0 +1,18 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/Site.css" type="text/css" rel="stylesheet" />
+    <title>Frame</title>
+</head>
+<body style="margin: 0px; padding: 0px;">
+    @if(ViewBag.Message != null) {
+        <div class="msg info">@ViewBag.Message</div>
+    }
+    <div class="msg err">游戏登录状态信息缺失，请 @Html.ActionLink("重新登录", "Login", "Auth", htmlAttributes: new { target = "_parent" })</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - OOI#</title>
+    <link href="~/Content/Site.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-header">
+            @Html.ActionLink("OOI#", "Index", "Game", new { area = "" }, new { @class = "navbar-brand" })
+        </div>
+        <ul class="navbar-nav">
+            <li>@Html.ActionLink("游戏", "Index", "Game")</li>
+            <li>@Html.ActionLink("魔改", "Index", "Mod")</li>
+            <li>@Html.ActionLink("关于", "Index", "About")</li>
+        </ul>
+        @Html.Partial("_LoginPartial")
+    </div>
+    <div class="body-content">
+        @if(Model is OoiSharp.Models.ViewModelBase) {
+            foreach(var msg in Model.Error) {
+                <div class="msg err">@msg</div>
+            }
+            foreach(var msg in Model.Warn) {
+                <div class="msg warn">@msg</div>
+            }
+            foreach(var msg in Model.Info) {
+                <div class="msg info">@msg</div>
+            }
+        }
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year</p>
+        </footer>
+    </div>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

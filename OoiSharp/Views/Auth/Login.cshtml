@@ -1,0 +1,41 @@
+﻿@model OoiSharp.Models.LoginViewModel
+@{
+    ViewBag.Title = "登陆";
+}
+
+@using(Html.BeginForm("Login", "Auth")) {
+    <table>
+        <tr><td class="label"><label for="email">DMM账号</label>：</td><td class="input">@Html.TextBoxFor(mdl => mdl.Username, new { type="email" })</td></tr>
+        <tr><td class="label"><label for="passowrd">密码</label>：</td><td class="input">@Html.PasswordFor(mdl => mdl.Password)</td></tr>
+        <tr><td class="label"><label for="sessionTime">保持登陆</label>：</td><td class="input">@Html.DropDownListFor(mdl => mdl.SessionTime, OoiSharp.Models.LoginViewModel.SessionTimeSelections)</td></tr>
+        <tr><td class="label"><label for="ipBound">绑定IP</label>：</td><td class="input">@Html.CheckBoxFor(mdl => mdl.IpBound)</td></tr>
+    </table>
+    <div id="saveCredentials" style="display: none;">
+        <p>
+            <input type="checkbox" id="saveUsername" checked="checked" /><label for="saveUsername">保存用户名</label>
+            <input type="checkbox" id="savePassword" /><label for="savePassword">保存密码<span style="color: red; font-weight:bold;">（密码会以明文保存在计算机上）</span></label>
+        </p>
+        <input type="button" value="清除保存的用户名和密码" onclick="localStorage.clear()" />
+    </div>
+    @Html.AntiForgeryToken()
+    <input type="submit" value="提交" onclick="DoSaveCredentials()" />
+}
+<script type="text/javascript">
+    function DoSaveCredentials() {
+        if (localStorage === undefined) return true;
+        if (localStorage === null) return true;
+        if (document.getElementById('saveUsername').checked) {
+            localStorage.setItem('username', document.getElementById('username').value);
+        }
+        if (document.getElementById('savePassword').checked) {
+            localStorage.setItem('password', document.getElementById('password').value);
+        }
+        return true;
+    }
+
+    if ((localStorage != undefined) && (localStorage != null)) {
+        document.getElementById('saveCredentials').style.display = 'inline';
+        document.getElementById('username').value = localStorage.getItem('username');
+        document.getElementById('password').value = localStorage.getItem('password');
+    }
+</script>

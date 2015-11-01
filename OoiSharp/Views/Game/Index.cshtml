@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "主页";
+}
+<iframe id="game_frame" src="~/Game/Frame" frameborder="0" scrolling="no"></iframe>
+<p><button onclick="SetFullScreenMode()">全屏</button></p>
+
+<script type="text/javascript">
+    function SetFullScreenMode() {
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "@Url.Content("~/Content/FullScreenGame.css")";
+        link.type = "text/css";
+        document.getElementsByTagName("head")[0].appendChild(link);
+
+        var frameDoc = document.getElementById("game_frame").contentDocument;
+        var link = frameDoc.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "@Url.Content("~/Content/FullScreenGame.css")";
+        link.type = "text/css";
+        frameDoc.getElementsByTagName("head")[0].appendChild(link);
+    }
+</script>
