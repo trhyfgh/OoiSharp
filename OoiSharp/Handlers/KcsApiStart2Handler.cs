@@ -15,17 +15,13 @@ namespace OoiSharp.Handlers
         private static string start2Content;
         private static long start2Timestamp;
 
-        public KcsApiStart2Handler()
+        public static void LoadDiskCache(HttpServerUtility server)
         {
-            if(start2Content != null) return;
+            var cache = server.MapPath("~/App_Data/api_start2.json");
+            if(!File.Exists(cache)) return;
 
-            var persistentCache = HttpContext.Current.Server.MapPath("~/App_Data/api_start2.json");
-            if(!File.Exists(persistentCache)) return;
-
-            if(System.Threading.Interlocked.CompareExchange(ref start2Timestamp, 1, 0) != 0) return;
-
-            start2Content = File.ReadAllText(persistentCache);
-            start2Timestamp = (long)((File.GetLastWriteTimeUtc(persistentCache) - Utils.UnixTimestamp.Epoch.UtcDateTime).TotalMilliseconds);
+            start2Content = File.ReadAllText(cache);
+            start2Timestamp = (long)((File.GetLastWriteTimeUtc(cache) - Utils.UnixTimestamp.Epoch.UtcDateTime).TotalMilliseconds);
         }
 
         protected override async Task ProcessRequestCoreAsync(HttpContext ctx, string viewer, string world, long startTime)

@@ -11,14 +11,12 @@ using System.Web.Mvc;
 
 namespace OoiSharp.Controllers
 {
-    [Authorize]
     public class AuthController : Controller
     {
         public SignInManager SignInManager => HttpContext.GetOwinContext().Get<SignInManager>();
         public UserManager UserManager => HttpContext.GetOwinContext().GetUserManager<UserManager>();
         private IAuthenticationManager AuthenticationManager => HttpContext.GetOwinContext().Authentication;
-
-        [AllowAnonymous]
+        
         public async Task<ActionResult> Login()
         {
             if(!Request.IsAuthenticated) {
@@ -39,7 +37,6 @@ namespace OoiSharp.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel mdl)
         {

@@ -14,7 +14,9 @@ namespace OoiSharp
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
             Utils.Cookie.Init();
+            Handlers.KcsApiStart2Handler.LoadDiskCache(Server);
         }
     }
 }
