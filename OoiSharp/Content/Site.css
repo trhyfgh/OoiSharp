@@ -82,7 +82,7 @@ div.msg {
 div.err {
     border: solid 1px red;
     background-color: pink;
-    color: red;
+    color: darkred;
 }
 div.warn {
     border: solid 1px orange;

@@ -27,16 +27,9 @@ namespace OoiSharp.Utils
         private const int OsapiUrlOffset = 6;
         private const double KcInfoCacheHours = 0.25;
 
-        private static WebProxy proxy;
         private static readonly Regex Regex_dmmToken = new Regex("setRequestHeader.+['\"]DMM_TOKEN['\"][^'\"]+['\"]([^'\"]+)", RegexOptions.ECMAScript | RegexOptions.Multiline | RegexOptions.Compiled);
         private static readonly Regex Regex_loginToken = new Regex("['\"]token['\"][^'\"]+['\"]([^'\"]+)", RegexOptions.ECMAScript | RegexOptions.Multiline | RegexOptions.Compiled);
         private static readonly Regex Regex_email = new Regex("^[0-9a-z][0-9a-z+\\-._]*@[0-9a-z][0-9a-z\\-]*(\\.[0-9a-z][0-9a-z\\-]*)+[a-z]$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
-        public static void ConfigProxy()
-        {
-            if(proxy != null) throw new InvalidOperationException();
-            proxy = string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["proxy"]) ? null : new WebProxy(ConfigurationManager.AppSettings["proxy"]);
-        }
 
         public static async Task<Tuple<string, string, string, string, string>> FetchAuthParamAsync(string username, string password)
         {
@@ -183,13 +176,7 @@ namespace OoiSharp.Utils
         {
             System.Diagnostics.Debug.Assert(postData.Count != 0);
             try {
-                var req = WebRequest.CreateHttp(uri);
-                req.AllowAutoRedirect = true;
-                req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                req.KeepAlive = true;
-                req.ReadWriteTimeout = 10000;
-                req.UserAgent = ConfigurationManager.AppSettings["ua"];
-                req.Proxy = proxy;
+                var req = Forwarder.CreateRequest(uri);
                 req.CookieContainer = cookies;
                 req.Referer = refer;
 
@@ -223,21 +210,15 @@ namespace OoiSharp.Utils
             } catch(IOException e) {
                 throw new KcAuthException("请求以下资源时发生网络错误 " + e.Message + " " + uri, e);
             } catch(WebException e) {
-                throw new KcAuthException("请求以下资源时远程服务器发生错误 " + e.Message + " " + uri, e);
+                throw new KcAuthException("请求以下资源时发生错误 " + e.Message + " " + uri, e);
             }
         }
 
         private static async Task<string> GetPage(string uri, CookieContainer cookies, string refer = null, Dictionary<string, string> extraHeaders = null)
         {
             try {
-                var req = WebRequest.CreateHttp(uri);
-                req.AllowAutoRedirect = true;
+                var req = Forwarder.CreateRequest(uri);
                 req.Method = "GET";
-                req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                req.KeepAlive = true;
-                req.ReadWriteTimeout = 10000;
-                req.UserAgent = ConfigurationManager.AppSettings["ua"];
-                req.Proxy = proxy;
                 req.CookieContainer = cookies;
                 req.Referer = refer;
 
@@ -254,7 +235,7 @@ namespace OoiSharp.Utils
             } catch(IOException e) {
                 throw new KcAuthException("请求以下资源时发生网络错误 " + e.Message + " " + uri, e);
             } catch(WebException e) {
-                throw new KcAuthException("请求以下资源时远程服务器发生错误 " + e.Message + " " + uri, e);
+                throw new KcAuthException("请求以下资源时发生错误 " + e.Message + " " + uri, e);
             }
         }
 
@@ -306,14 +287,18 @@ namespace OoiSharp.Utils
                     if((DateTimeOffset.Now - lastUpdate).TotalHours < cacheHour) {
                         return;
                     }
-                    
+
                     Engine interpreter = new Engine(cfg => cfg
                         .LocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time"))
                         .Culture(System.Globalization.CultureInfo.GetCultureInfo("ja-JP"))
                         .MaxStatements(100)
                         .LimitRecursion(2));
-                    using(WebClient wc = new WebClient())
-                        interpreter.Execute(wc.DownloadString(KcsConstantsJs));
+
+                    var hwr = Forwarder.CreateRequest(KcsConstantsJs);
+                    hwr.Method = "GET";
+                    using(var resp = hwr.GetResponse())
+                    using(var jsRdr = new StreamReader(resp.GetResponseStream()))
+                        interpreter.Execute(jsRdr.ReadToEnd());
 
                     var urlInfo = interpreter.GetValue("ConstURLInfo");
                     kcLoginUrl = interpreter.GetValue(urlInfo, "LoginURL").AsString();

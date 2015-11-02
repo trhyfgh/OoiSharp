@@ -18,13 +18,8 @@ namespace OoiSharp.Handlers
             var url = world + req.Url.PathAndQuery.Substring(1);
             var encodedHost = req.Url.Host.Replace('.', '_');
             var encodedWorld = string.Join("_", new Uri(world).Host.Split('.').Select(x => x.PadLeft(3, '0')));
-            HttpWebRequest hwr = WebRequest.CreateHttp(url.Replace(encodedHost, encodedWorld));
+            HttpWebRequest hwr = Utils.Forwarder.CreateRequest(url.Replace(encodedHost, encodedWorld));
             hwr.Method = req.HttpMethod;
-            hwr.Timeout = 15000;
-            hwr.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-            hwr.UserAgent = ConfigurationManager.AppSettings["ua"];
-            hwr.AllowAutoRedirect = true;
-            hwr.KeepAlive = true;
 
             HttpWebResponse proxyResponse;
             try {

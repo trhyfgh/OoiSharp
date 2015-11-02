@@ -19,17 +19,17 @@ namespace OoiSharp.Handlers
                 return;
             }
 
-            HttpWebRequest hwr = WebRequest.CreateHttp(world + req.Url.PathAndQuery.Substring(1));
+            string referer = null;
             if(req.Headers["Referer"] != null) {
                 var hdrLine = req.Headers["Referer"];
                 var schema = hdrLine.IndexOf("//") + 2;
                 var kcsUrl = hdrLine.IndexOf("/kcs", schema);
                 if(kcsUrl > 0) {
-                    hwr.Referer = world + hdrLine.Substring(kcsUrl + 1);
+                    referer = world + hdrLine.Substring(kcsUrl + 1);
                 }
             }
 
-            var proxyResponse = await Utils.Misc.ForwardRequest(req, hwr);
+            var proxyResponse = await Utils.Forwarder.ForwardRequest(req, world + req.Url.PathAndQuery.Substring(1), referer);
             if(proxyResponse == null) {
                 resp.StatusCode = 502;
                 return;

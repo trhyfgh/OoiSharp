@@ -16,7 +16,7 @@ namespace OoiSharp
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             Utils.Cookie.ConfigKey();
-            Utils.KcAuth.ConfigProxy();
+            Utils.Forwarder.ConfigForwarder();
             Handlers.KcsApiStart2Handler.LoadDiskCache(Server);
         }
     }

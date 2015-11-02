@@ -57,8 +57,8 @@ namespace OoiSharp.Utils
             var encodedLength = cookieEncoding.GetBytes(input, 0, input.Length, data, DataOffset);
             System.Diagnostics.Debug.Assert(encodedLength == (dataLen - DataOffset));
             
-            data.PutInt64LE(TsOffset, timestamp == long.MinValue ? UnixTimestamp.CurrentMillisecondTimestamp : timestamp);
-            data.PutUInt32LE(ValidityOffset, validTime);
+            data.PutInt64(TsOffset, timestamp == long.MinValue ? UnixTimestamp.CurrentMillisecondTimestamp : timestamp);
+            data.PutUInt32(ValidityOffset, validTime);
 
             if(remoteIp == null) { //which means don't care
                 remoteIp = IPAddress.IPv6Any; //all zeroes
@@ -104,7 +104,7 @@ namespace OoiSharp.Utils
                     return null;
                 }
 
-                signTime = data.GetInt64LE(TsOffset);
+                signTime = data.GetInt64(TsOffset);
                 var currentTs = UnixTimestamp.CurrentMillisecondTimestamp;
                 if(signTime > currentTs) {    //Reject anything with a timestamp from the future
                     return null;
@@ -112,7 +112,7 @@ namespace OoiSharp.Utils
                 
                 //Compute the validity period for this verification.
                 //Subtract 1 to treat value 0 (defined as infinite) as greatest.
-                validTime = Math.Min(data.GetUInt32LE(ValidityOffset) - 1, validTime - 1);
+                validTime = Math.Min(data.GetUInt32(ValidityOffset) - 1, validTime - 1);
                 if(validTime != uint.MaxValue) {
                     if((signTime + validTime) < currentTs) { //Should be <=, but we've subtracted 1 from the original value.
                         return null;

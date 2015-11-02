@@ -37,17 +37,17 @@ namespace OoiSharp.Handlers
             var currentTs = Utils.UnixTimestamp.CurrentMillisecondTimestamp;
             var start2Ts = start2Timestamp;
             if((currentTs - startTime < Start2ValidityPeriod) && (currentTs - start2Ts > Start2ValidityPeriod)) {
-                HttpWebRequest hwr = WebRequest.CreateHttp(world + "kcsapi/api_start2");
+                string referer = null;
                 if(req.Headers["Referer"] != null) {
                     var hdrLine = req.Headers["Referer"];
                     var schema = hdrLine.IndexOf("//") + 2;
                     var kcsUrl = hdrLine.IndexOf("/kcs", schema);
                     if(kcsUrl > 0) {
-                        hwr.Referer = world + hdrLine.Substring(kcsUrl + 1);
+                        referer = world + hdrLine.Substring(kcsUrl + 1);
                     }
                 }
 
-                var proxyResponse = await Utils.Misc.ForwardRequest(req, hwr);
+                var proxyResponse = await Utils.Forwarder.ForwardRequest(req, world + "kcsapi/api_start2", referer);
                 if(proxyResponse != null) {
                     using(proxyResponse) {
                         if(proxyResponse.StatusCode == HttpStatusCode.OK) {

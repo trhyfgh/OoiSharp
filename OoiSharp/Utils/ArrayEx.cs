@@ -7,13 +7,13 @@ namespace OoiSharp.Utils.ArrayExtensions
 {
     public static class ArrayEx
     {
-        public static long GetInt64LE(this byte[] b, int index)
+        public static long GetInt64(this byte[] b, int index)
         {
+#if false
             if(b == null) throw new NullReferenceException();
             if(b.Length - 8 < index) throw new IndexOutOfRangeException();
             if(index < 0) throw new IndexOutOfRangeException();
 
-#if UNSAFE
             unsafe
             {
                 fixed(byte* lpValue = &b[index])
@@ -22,27 +22,17 @@ namespace OoiSharp.Utils.ArrayExtensions
                 }
             }
 #else
-            long r = 0;
-            r |= (long)b[index + 0] << 0;
-            r |= (long)b[index + 1] << 8;
-            r |= (long)b[index + 2] << 16;
-            r |= (long)b[index + 3] << 24;
-            r |= (long)b[index + 4] << 32;
-            r |= (long)b[index + 5] << 40;
-            r |= (long)b[index + 6] << 48;
-            r |= (long)b[index + 7] << 56;
-
-            return r;
+            return BitConverter.ToInt64(b, index);
 #endif
         }
 
-        public static uint GetUInt32LE(this byte[] b, int index)
+        public static uint GetUInt32(this byte[] b, int index)
         {
+#if false
             if(b == null) throw new NullReferenceException();
             if(b.Length - 4 < index) throw new IndexOutOfRangeException();
             if(index < 0) throw new IndexOutOfRangeException();
 
-#if UNSAFE
             unsafe
             {
                 fixed (byte* lpValue = &b[index])
@@ -51,17 +41,11 @@ namespace OoiSharp.Utils.ArrayExtensions
                 }
             }
 #else
-            uint r = 0;
-            r |= (uint)b[index + 0] << 0;
-            r |= (uint)b[index + 1] << 8;
-            r |= (uint)b[index + 2] << 16;
-            r |= (uint)b[index + 3] << 24;
-
-            return r;
+            return BitConverter.ToUInt32(b, index);
 #endif
         }
 
-        public static void PutUInt32LE(this byte[] b, int index, uint value)
+        public static void PutUInt32(this byte[] b, int index, uint value)
         {
             if(b == null) throw new NullReferenceException();
             if(b.Length - 4 < index) throw new IndexOutOfRangeException();
@@ -76,14 +60,21 @@ namespace OoiSharp.Utils.ArrayExtensions
                 }
             }
 #else
-            b[index + 0] = (byte)(value >> 0);
-            b[index + 1] = (byte)(value >> 8);
-            b[index + 2] = (byte)(value >> 16);
-            b[index + 3] = (byte)(value >> 24);
+            if(BitConverter.IsLittleEndian) {
+                b[index + 0] = (byte)(value >> 0);
+                b[index + 1] = (byte)(value >> 8);
+                b[index + 2] = (byte)(value >> 16);
+                b[index + 3] = (byte)(value >> 24);
+            } else {
+                b[index + 3] = (byte)(value >> 0);
+                b[index + 2] = (byte)(value >> 8);
+                b[index + 1] = (byte)(value >> 16);
+                b[index + 0] = (byte)(value >> 24);
+            }
 #endif
         }
 
-        public static void PutInt64LE(this byte[] b, int index, long value)
+        public static void PutInt64(this byte[] b, int index, long value)
         {
             if(b == null) throw new NullReferenceException();
             if(b.Length - 8 < index) throw new IndexOutOfRangeException();
@@ -98,14 +89,25 @@ namespace OoiSharp.Utils.ArrayExtensions
                 }
             }
 #else
-            b[index + 0] = (byte)(value >> 0);
-            b[index + 1] = (byte)(value >> 8);
-            b[index + 2] = (byte)(value >> 16);
-            b[index + 3] = (byte)(value >> 24);
-            b[index + 4] = (byte)(value >> 32);
-            b[index + 5] = (byte)(value >> 40);
-            b[index + 6] = (byte)(value >> 48);
-            b[index + 7] = (byte)(value >> 56);
+            if(BitConverter.IsLittleEndian) {
+                b[index + 0] = (byte)(value >> 0);
+                b[index + 1] = (byte)(value >> 8);
+                b[index + 2] = (byte)(value >> 16);
+                b[index + 3] = (byte)(value >> 24);
+                b[index + 4] = (byte)(value >> 32);
+                b[index + 5] = (byte)(value >> 40);
+                b[index + 6] = (byte)(value >> 48);
+                b[index + 7] = (byte)(value >> 56);
+            }else {
+                b[index + 7] = (byte)(value >> 0);
+                b[index + 6] = (byte)(value >> 8);
+                b[index + 5] = (byte)(value >> 16);
+                b[index + 4] = (byte)(value >> 24);
+                b[index + 3] = (byte)(value >> 32);
+                b[index + 2] = (byte)(value >> 40);
+                b[index + 1] = (byte)(value >> 48);
+                b[index + 0] = (byte)(value >> 56);
+            }
 #endif
         }
 
