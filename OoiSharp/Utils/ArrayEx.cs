@@ -10,7 +10,7 @@ namespace OoiSharp.Utils.ArrayExtensions
         public static long GetInt64LE(this byte[] b, int index)
         {
             if(b == null) throw new NullReferenceException();
-            if(b.Length < index + 8) throw new IndexOutOfRangeException();
+            if(b.Length - 8 < index) throw new IndexOutOfRangeException();
             if(index < 0) throw new IndexOutOfRangeException();
 
 #if UNSAFE
@@ -39,7 +39,7 @@ namespace OoiSharp.Utils.ArrayExtensions
         public static uint GetUInt32LE(this byte[] b, int index)
         {
             if(b == null) throw new NullReferenceException();
-            if(b.Length < index + 4) throw new IndexOutOfRangeException();
+            if(b.Length - 4 < index) throw new IndexOutOfRangeException();
             if(index < 0) throw new IndexOutOfRangeException();
 
 #if UNSAFE
@@ -64,7 +64,7 @@ namespace OoiSharp.Utils.ArrayExtensions
         public static void PutUInt32LE(this byte[] b, int index, uint value)
         {
             if(b == null) throw new NullReferenceException();
-            if(b.Length < index + 4) throw new IndexOutOfRangeException();
+            if(b.Length - 4 < index) throw new IndexOutOfRangeException();
             if(index < 0) throw new IndexOutOfRangeException();
 
 #if UNSAFE
@@ -86,7 +86,7 @@ namespace OoiSharp.Utils.ArrayExtensions
         public static void PutInt64LE(this byte[] b, int index, long value)
         {
             if(b == null) throw new NullReferenceException();
-            if(b.Length < index + 8) throw new IndexOutOfRangeException();
+            if(b.Length - 8 < index) throw new IndexOutOfRangeException();
             if(index < 0) throw new IndexOutOfRangeException();
 
 #if UNSAFE
@@ -116,8 +116,8 @@ namespace OoiSharp.Utils.ArrayExtensions
             if(length < 0) throw new ArgumentException();
             if(aIndex < 0) throw new IndexOutOfRangeException();
             if(bIndex < 0) throw new IndexOutOfRangeException();
-            if(b.Length < bIndex + length) throw new IndexOutOfRangeException();
-            if(a.Length < aIndex + length) throw new IndexOutOfRangeException();
+            if(b.Length - length < bIndex) throw new IndexOutOfRangeException();
+            if(a.Length - length < aIndex) throw new IndexOutOfRangeException();
 
 #if UNSAFE
             unsafe
@@ -147,8 +147,9 @@ namespace OoiSharp.Utils.ArrayExtensions
         public static bool TrueForRange<T>(this T[] arr, int index, int length, Func<T, bool> predict)
         {
             if(arr == null) throw new NullReferenceException();
-            if(arr.Length < index + length) throw new IndexOutOfRangeException();
+            if(length < 0) throw new ArgumentException();
             if(index < 0) throw new IndexOutOfRangeException();
+            if(arr.Length - length < index) throw new IndexOutOfRangeException();
 
             for(int i = 0; i < length; i++) {
                 if(!predict(arr[index + i])) return false;

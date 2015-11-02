@@ -27,12 +27,16 @@ namespace OoiSharp.Utils
         private const int OsapiUrlOffset = 6;
         private const double KcInfoCacheHours = 0.25;
 
-        private static readonly Uri LoginPageUri = new Uri(LoginPageUrl);
-
-        private static readonly Lazy<WebProxy> proxy = new Lazy<WebProxy>(() => string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["proxy"]) ? null : new WebProxy(ConfigurationManager.AppSettings["proxy"]), true);
+        private static WebProxy proxy;
         private static readonly Regex Regex_dmmToken = new Regex("setRequestHeader.+['\"]DMM_TOKEN['\"][^'\"]+['\"]([^'\"]+)", RegexOptions.ECMAScript | RegexOptions.Multiline | RegexOptions.Compiled);
         private static readonly Regex Regex_loginToken = new Regex("['\"]token['\"][^'\"]+['\"]([^'\"]+)", RegexOptions.ECMAScript | RegexOptions.Multiline | RegexOptions.Compiled);
         private static readonly Regex Regex_email = new Regex("^[0-9a-z][0-9a-z+\\-._]*@[0-9a-z][0-9a-z\\-]*(\\.[0-9a-z][0-9a-z\\-]*)+[a-z]$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+
+        public static void ConfigProxy()
+        {
+            if(proxy != null) throw new InvalidOperationException();
+            proxy = string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["proxy"]) ? null : new WebProxy(ConfigurationManager.AppSettings["proxy"]);
+        }
 
         public static async Task<Tuple<string, string, string, string, string>> FetchAuthParamAsync(string username, string password)
         {
@@ -179,15 +183,13 @@ namespace OoiSharp.Utils
         {
             System.Diagnostics.Debug.Assert(postData.Count != 0);
             try {
-                cookies?.SetCookies(LoginPageUri, "ckcy=1; path=/; domain=dmm.com");
-
                 var req = WebRequest.CreateHttp(uri);
                 req.AllowAutoRedirect = true;
                 req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 req.KeepAlive = true;
                 req.ReadWriteTimeout = 10000;
                 req.UserAgent = ConfigurationManager.AppSettings["ua"];
-                req.Proxy = proxy.Value;
+                req.Proxy = proxy;
                 req.CookieContainer = cookies;
                 req.Referer = refer;
 
@@ -228,8 +230,6 @@ namespace OoiSharp.Utils
         private static async Task<string> GetPage(string uri, CookieContainer cookies, string refer = null, Dictionary<string, string> extraHeaders = null)
         {
             try {
-                cookies?.SetCookies(LoginPageUri, "ckcy=1; path=/; domain=dmm.com");
-
                 var req = WebRequest.CreateHttp(uri);
                 req.AllowAutoRedirect = true;
                 req.Method = "GET";
@@ -237,7 +237,7 @@ namespace OoiSharp.Utils
                 req.KeepAlive = true;
                 req.ReadWriteTimeout = 10000;
                 req.UserAgent = ConfigurationManager.AppSettings["ua"];
-                req.Proxy = proxy.Value;
+                req.Proxy = proxy;
                 req.CookieContainer = cookies;
                 req.Referer = refer;
 

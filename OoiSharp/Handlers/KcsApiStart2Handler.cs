@@ -15,7 +15,7 @@ namespace OoiSharp.Handlers
         private static string start2Content;
         private static long start2Timestamp;
 
-        public static void LoadDiskCache(HttpServerUtility server)
+        internal static void LoadDiskCache(HttpServerUtility server)
         {
             var cache = server.MapPath("~/App_Data/api_start2.json");
             if(!File.Exists(cache)) return;

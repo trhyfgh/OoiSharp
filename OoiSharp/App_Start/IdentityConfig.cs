@@ -20,7 +20,7 @@ namespace OoiSharp
         {
         }
 
-        public static UserManager Create(IdentityFactoryOptions<UserManager> options, IOwinContext context)
+        internal static UserManager Create(IdentityFactoryOptions<UserManager> options, IOwinContext context)
         {
             var manager = new UserManager(new UserStore<User>(context.Get<DbContext>()));
             
@@ -45,7 +45,7 @@ namespace OoiSharp
             return user.GenerateUserIdentityAsync((UserManager)UserManager);
         }
 
-        public static SignInManager Create(IdentityFactoryOptions<SignInManager> options, IOwinContext context)
+        internal static SignInManager Create(IdentityFactoryOptions<SignInManager> options, IOwinContext context)
         {
             return new SignInManager(context.GetUserManager<UserManager>(), context.Authentication);
         }

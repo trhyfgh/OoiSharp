@@ -15,6 +15,7 @@ namespace OoiSharp.Models
 
         public Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<User> manager)
         {
+            if(manager == null) throw new ArgumentNullException();
             return manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
         }
     }

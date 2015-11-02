@@ -15,7 +15,8 @@ namespace OoiSharp
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            Utils.Cookie.Init();
+            Utils.Cookie.ConfigKey();
+            Utils.KcAuth.ConfigProxy();
             Handlers.KcsApiStart2Handler.LoadDiskCache(Server);
         }
     }

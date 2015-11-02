@@ -16,8 +16,6 @@ namespace OoiSharp.Utils
         public static bool IsHmacKeyTemporary { get; private set; }
         
         private static byte[] hmacKey;
-        private static int initStatus = 0;
-        private static readonly ManualResetEventSlim initialized = new ManualResetEventSlim();
         private static readonly System.Text.UTF8Encoding cookieEncoding = new System.Text.UTF8Encoding(false, true);
         private static readonly ThreadLocal<HMACSHA256> hmac = new ThreadLocal<HMACSHA256>(() => new HMACSHA256(hmacKey));
 
@@ -31,12 +29,9 @@ namespace OoiSharp.Utils
         private const int ValidityOffset = TsOffset + TsLength;
         private const int DataOffset = ValidityOffset + ValidityLength;
 
-        public static void Init()
+        public static void ConfigKey()
         {
-            if(Interlocked.CompareExchange(ref initStatus, 1, 0) != 0) {
-                initialized.Wait();
-                return;
-            }
+            if(hmacKey != null) throw new InvalidOperationException();
 
             hmacKey = System.Text.Encoding.UTF8.GetBytes(ConfigurationManager.AppSettings["hmacKey"] ?? "");
             if(hmacKey.Length > 64) {
@@ -50,18 +45,13 @@ namespace OoiSharp.Utils
                     rng.GetBytes(hmacKey);
                 }
             }
-
-            initialized.Set();
-            initStatus = 2;
         }
 
         public static string SignCookie(string input, long timestamp = long.MinValue, IPAddress remoteIp = null, uint validTime = uint.MaxValue)
         {
-#if !DEBUG
-            if(initStatus != 2) {
-                Init();
-            }
-#endif
+            if(input == null) throw new ArgumentNullException();
+            if(hmacKey == null) throw new InvalidOperationException();
+
             var dataLen = cookieEncoding.GetByteCount(input) + DataOffset;
             var data = new byte[dataLen];
             var encodedLength = cookieEncoding.GetBytes(input, 0, input.Length, data, DataOffset);
@@ -89,12 +79,9 @@ namespace OoiSharp.Utils
 
         public static string VerifyCookie(string input, out long signTime, IPAddress remoteIp = null, uint validTime = uint.MaxValue)
         {
+            if(hmacKey == null) throw new InvalidOperationException();
+
             signTime = long.MinValue;
-#if !DEBUG
-            if(initStatus != 2) {
-                Init();
-            }
-#endif
             if(input == null) {
                 return null;
             }

@@ -7,7 +7,7 @@ using System.Web.Routing;
 
 namespace OoiSharp
 {
-    public class RouteConfig
+    internal class RouteConfig
     {
         public static void RegisterRoutes(RouteCollection routes)
         {

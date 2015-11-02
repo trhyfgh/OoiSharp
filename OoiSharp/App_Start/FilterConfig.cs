@@ -3,7 +3,7 @@ using System.Web.Mvc;
 
 namespace OoiSharp
 {
-    public class FilterConfig
+    internal class FilterConfig
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
